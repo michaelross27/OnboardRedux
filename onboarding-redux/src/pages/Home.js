@@ -10,6 +10,7 @@ import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { deleteUser, loadUsers } from "../redux/actions";
+import { history } from "../index";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -43,6 +44,15 @@ const Home = () => {
       dispatch(deleteUser(id));
     }
   };
+
+  const handleEdit = (userDeleted) => {
+    history.push({
+      pathname: `/edit/${user.id}`,
+      state: {
+        user: user,
+      }
+    })
+  }
 
   return (
     <div>
@@ -86,7 +96,7 @@ const Home = () => {
                     {user.jobTitle}
                   </StyledTableCell>
                   <StyledTableCell align="center">
-                    <Button color="primary" variant="contained">
+                    <Button color="primary" variant="contained" onClick={() => handleEdit(user.id)}>
                       EDIT
                     </Button>
                   </StyledTableCell>

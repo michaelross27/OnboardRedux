@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { reduxForm } from "redux-form";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 import Box from "@mui/material/Box";
 import {
   Dialog,
@@ -21,15 +22,9 @@ import HomeIcon from "@mui/icons-material/Home";
 import CallIcon from "@mui/icons-material/Call";
 import WorkIcon from "@mui/icons-material/Work";
 import PropTypes from "prop-types";
-import { addUser } from "../redux/actions";
+import { addUser, updateUser } from "../redux/actions";
 
-const FloatingActionButtonContainer = styled.div`
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-`;
-
-const AddUser = (props) => {
+const EditUser = (props) => {
   const { onClose, title } = props;
   const onSubmit = (formValues) => props.onSubmit(formValues);
 
@@ -46,6 +41,10 @@ const AddUser = (props) => {
 
   let dispatch = useDispatch();
 
+  let {id} = useParams;
+
+  const {user} = useSelector((state) => state.data);
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -56,6 +55,16 @@ const AddUser = (props) => {
 
   const { name, email, address, phoneNumber, jobTitle } = state;
 
+  useEffect(() => {
+      dispatch(getSingleUser(id))
+  }, []);
+
+  useEffect(() => {
+    if(user) {
+        setState({ ...user})
+    }
+}, [user]);
+
   const handleInputChange = (e) => {
     let { name, value } = e.target;
     setState({ ...state, [name]: value });
@@ -63,7 +72,7 @@ const AddUser = (props) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(addUser(state));
+    dispatch(updateUser(state, id));
     setError("");
   };
 
@@ -75,7 +84,7 @@ const AddUser = (props) => {
         </Fab>
       </FloatingActionButtonContainer>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Add New Customer</DialogTitle>
+        <DialogTitle>Edit Existing Customer</DialogTitle>
         {error && <h3 style={{ color: "red" }}>{error}</h3>}
         <Divider />
         <form onSubmit={onSubmit} autoComplete="off">
@@ -140,9 +149,9 @@ const AddUser = (props) => {
               color="primary"
               variant="contained"
               type="submit"
-              onClick={props.handleSubmit(onSubmit)}
+              onClick={handleSubmit}
             >
-              Add
+              Update
             </Button>
             <Button
               color="secondary"
@@ -191,5 +200,5 @@ AddUser.propTypes = {
 
 export default reduxForm({
   validate,
-  form: "addUser",
-})(AddUser);
+  form: "editUser",
+})(EditUser);

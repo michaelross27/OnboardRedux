@@ -6,14 +6,15 @@ import store from "./redux/store";
 import { Provider } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import * as serviceWorker from "./serviceWorker";
+import { createBrowserHistory } from "history";
+
+export const history = createBrowserHistory({ forceRefresh: true });
 
 ReactDOM.render(
   <React.StrictMode>
-    <BrowserRouter>
       <Provider store={store}>
         <App />
       </Provider>
-    </BrowserRouter>
   </React.StrictMode>,
   document.getElementById("root")
 );
