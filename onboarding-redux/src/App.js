@@ -22,19 +22,19 @@ function App() {
       },
   };
 
-  const onSubmit = (formValues) => {
+/*   const onSubmit = (formValues) => {
     form.close();
     if (isEditing) {
         updateContactDetails(formValues);
     } else {
         addUser(formValues);
     }
-  };
+  }; */
 
   return (
     <div className="App">
          <Home />
-         <AddUser onSubmit={onSubmit}/>
+         <AddUser/*  onSubmit={onSubmit} *//>
     </div>
   );
 }

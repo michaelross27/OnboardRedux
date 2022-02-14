@@ -48,14 +48,17 @@ export const deleteUser = (id) => async (dispatch) => {
   }
 };
 
-export const addUser = (user) => async (dispatch) => {
-  try {
-    const response = await axios.post(`${process.env.REACT_APP_API}, user`);
-    console.log("resp", response);
-    dispatch(userAdded());
-  } catch (error) {
-    console.log(error);
-  }
+export const addUser = (user) => {
+  return function (dispatch) {
+    axios
+      .post(`${process.env.REACT_APP_API}`, user)
+      .then((resp) => {
+        console.log("resp", resp);
+        dispatch(userAdded());
+        dispatch(loadUsers());
+      })
+      .catch((error) => console.log(error));
+  };
 };
 
 export const getSingleUser = (id) => async (dispatch) => {

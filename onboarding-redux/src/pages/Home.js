@@ -11,6 +11,7 @@ import Button from "@mui/material/Button";
 import { useSelector, useDispatch } from "react-redux";
 import { deleteUser, loadUsers } from "../redux/actions";
 import { history } from "../index";
+import EditUser from "./EditUser"
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -39,19 +40,18 @@ const Home = () => {
     dispatch(loadUsers());
   }, []);
 
+  const {user} = useSelector((state) => state.users);
+
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       dispatch(deleteUser(id));
     }
   };
 
-  const handleEdit = (userDeleted) => {
-    history.push({
-      pathname: `/edit/${user.id}`,
-      state: {
-        user: user,
-      }
-    })
+  const [open, setOpen] = React.useState(false);
+
+  const handleEdit = () => {
+    setOpen(true);
   }
 
   return (

@@ -22,11 +22,12 @@ import HomeIcon from "@mui/icons-material/Home";
 import CallIcon from "@mui/icons-material/Call";
 import WorkIcon from "@mui/icons-material/Work";
 import PropTypes from "prop-types";
-import { addUser, updateUser } from "../redux/actions";
+import { addUser, updateUser, getSingleUser } from "../redux/actions";
 
 const EditUser = (props) => {
   const { onClose, title } = props;
   const onSubmit = (formValues) => props.onSubmit(formValues);
+  const { users } = useSelector((state) => state.users);
 
   const [state, setState] = useState({
     name: "",
@@ -43,7 +44,7 @@ const EditUser = (props) => {
 
   let {id} = useParams;
 
-  const {user} = useSelector((state) => state.data);
+  const {user} = useSelector((state) => state.user);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -78,11 +79,6 @@ const EditUser = (props) => {
 
   return (
     <div>
-      <FloatingActionButtonContainer>
-        <Fab color="primary" onClick={handleClickOpen}>
-          <AddIcon />
-        </Fab>
-      </FloatingActionButtonContainer>
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Edit Existing Customer</DialogTitle>
         {error && <h3 style={{ color: "red" }}>{error}</h3>}
@@ -190,7 +186,7 @@ function validate(values) {
   return errors;
 }
 
-AddUser.propTypes = {
+EditUser.propTypes = {
     open: PropTypes.bool.isRequired,
     title: PropTypes.string.isRequired,
     onClose: PropTypes.func.isRequired,

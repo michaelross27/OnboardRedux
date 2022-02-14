@@ -31,7 +31,6 @@ const FloatingActionButtonContainer = styled.div`
 
 const AddUser = (props) => {
   const { onClose, title } = props;
-  const onSubmit = (formValues) => props.onSubmit(formValues);
 
   const [state, setState] = useState({
     name: "",
@@ -78,7 +77,7 @@ const AddUser = (props) => {
         <DialogTitle>Add New Customer</DialogTitle>
         {error && <h3 style={{ color: "red" }}>{error}</h3>}
         <Divider />
-        <form onSubmit={onSubmit} autoComplete="off">
+        <form onSubmit={handleSubmit} autoComplete="off">
           <DialogContent>
             <TextField
               id="standard-basic"
@@ -140,7 +139,8 @@ const AddUser = (props) => {
               color="primary"
               variant="contained"
               type="submit"
-              onClick={props.handleSubmit(onSubmit)}
+              onChange={handleInputChange}
+              onClick={handleClose}
             >
               Add
             </Button>
