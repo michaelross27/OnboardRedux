@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { reduxForm } from "redux-form";
+import { Form, Field, reduxForm } from "redux-form";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import Box from "@mui/material/Box";
@@ -22,12 +22,45 @@ import HomeIcon from "@mui/icons-material/Home";
 import CallIcon from "@mui/icons-material/Call";
 import WorkIcon from "@mui/icons-material/Work";
 import PropTypes from "prop-types";
+import { formStyles } from "./formStyle";
 import { addUser, updateUser, getSingleUser } from "../redux/actions";
+
+const renderField = ({ input, label, type, meta: { touched, error } }) => (
+  <div>
+    <label>{label}</label>
+    <div>
+      <input {...input} placeholder={label} type={type} />
+      {touched && error && <span>{error}</span>}
+    </div>
+  </div>
+);
 
 const EditUser = (props) => {
   const { onClose, title } = props;
+
+  const classes = formStyles();
+
+/*   const { users } = useSelector((state) => state.data);
+  const { user } = useSelector((state) => state.data); */
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+/*   useEffect(() => {
+    dispatch(getSingleUser(id));
+  }, []); */
+
+/*   useEffect(() => {
+    if (user) {
+      setState({ ...user });
+    }
+  }, [user]); */
+
   const onSubmit = (formValues) => props.onSubmit(formValues);
-  const { users } = useSelector((state) => state.users);
+  let dispatch = useDispatch();
+
+  let { id } = useParams;
 
   const [state, setState] = useState({
     name: "",
@@ -36,35 +69,16 @@ const EditUser = (props) => {
     phoneNumber: "",
     jobTitle: "",
   });
+
+  const { name, email, address, phoneNumber, jobTitle } = state;
+
   const [error, setError] = useState("");
 
   const [open, setOpen] = React.useState(false);
 
-  let dispatch = useDispatch();
-
-  let {id} = useParams;
-
-  const {user} = useSelector((state) => state.user);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
   const handleClose = () => {
     setOpen(false);
   };
-
-  const { name, email, address, phoneNumber, jobTitle } = state;
-
-  useEffect(() => {
-      dispatch(getSingleUser(id))
-  }, []);
-
-  useEffect(() => {
-    if(user) {
-        setState({ ...user})
-    }
-}, [user]);
 
   const handleInputChange = (e) => {
     let { name, value } = e.target;
@@ -79,87 +93,67 @@ const EditUser = (props) => {
 
   return (
     <div>
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Edit Existing Customer</DialogTitle>
-        {error && <h3 style={{ color: "red" }}>{error}</h3>}
-        <Divider />
-        <form onSubmit={onSubmit} autoComplete="off">
-          <DialogContent>
-            <TextField
-              id="standard-basic"
-              label="Name"
-              variant="standard"
-              name="name"
-              type="text"
-              required
-              icon={<PersonOutlineIcon />}
-              onChange={handleInputChange}
-            />
-            <br />
-            <TextField
-              id="standard-basic"
-              label="Email"
-              variant="standard"
-              name="email"
-              type="email"
-              required
-              icon={<EmailIcon />}
-              onChange={handleInputChange}
-            />
-            <br />
-            <TextField
-              id="standard-basic"
-              label="Address"
-              variant="standard"
-              name="address"
-              type="text"
-              icon={<HomeIcon />}
-              onChange={handleInputChange}
-            />
-            <br />
-            <TextField
-              id="standard-basic"
-              label="Phone Number"
-              variant="standard"
-              name="phoneNumber"
-              type="tel"
-              icon={<CallIcon />}
-              onChange={handleInputChange}
-            />
-            <br />
-            <TextField
-              id="standard-basic"
-              label="Job Title"
-              variant="standard"
-              name="jobTitle"
-              type="text"
-              icon={<WorkIcon />}
-              onChange={handleInputChange}
-            />
-            <br />
-          </DialogContent>
-          <Divider />
-          <DialogActions>
-            <Button
-              style={{ width: "100px" }}
-              color="primary"
-              variant="contained"
-              type="submit"
-              onClick={handleSubmit}
-            >
-              Update
-            </Button>
-            <Button
-              color="secondary"
-              variant="contained"
-              type="submit"
-              onClick={handleClose}
-            >
-              Close
-            </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+        <h2>Update Customer</h2>
+      <form onSubmit={handleSubmit} onClose={handleClose} autoComplete="off">
+        <Field
+          id="standard-basic"
+          label="Name"
+          variant="standard"
+          name="name"
+          type="text"
+          required
+          component={renderField}
+          icon={<PersonOutlineIcon />}
+          onChange={handleInputChange}
+        />
+        <br />
+        <Field
+          id="standard-basic"
+          label="Email"
+          variant="standard"
+          name="email"
+          type="email"
+          required
+          component={renderField}
+          icon={<EmailIcon />}
+          onChange={handleInputChange}
+        />
+        <br />
+        <Field
+          id="standard-basic"
+          label="Address"
+          variant="standard"
+          name="address"
+          type="text"
+          component={renderField}
+          icon={<HomeIcon />}
+          onChange={handleInputChange}
+        />
+        <br />
+        <Field
+          id="standard-basic"
+          label="Phone Number"
+          variant="standard"
+          name="phoneNumber"
+          type="tel"
+          component={renderField}
+          icon={<CallIcon />}
+          onChange={handleInputChange}
+        />
+        <br />
+        <Field
+          id="standard-basic"
+          label="Job Title"
+          variant="standard"
+          name="jobTitle"
+          type="text"
+          component={renderField}
+          icon={<WorkIcon />}
+          onChange={handleInputChange}
+        />
+        <br />
+        
+      </form>
     </div>
   );
 };
@@ -186,13 +180,12 @@ function validate(values) {
   return errors;
 }
 
-EditUser.propTypes = {
-    open: PropTypes.bool.isRequired,
-    title: PropTypes.string.isRequired,
-    onClose: PropTypes.func.isRequired,
-    onSubmit: PropTypes.func.isRequired,
-};
-
+/* EditUser.propTypes = {
+  open: PropTypes.bool.isRequired,
+  title: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+}; */
 
 export default reduxForm({
   validate,

@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useTheme, styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
+import { Button, Dialog, DialogContent } from "@mui/material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
@@ -10,7 +11,6 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableFooter from "@mui/material/TableFooter";
 import Paper from "@mui/material/Paper";
-import Button from "@mui/material/Button";
 import TablePagination from "@mui/material/TablePagination";
 import IconButton from "@mui/material/IconButton";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
@@ -18,9 +18,11 @@ import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import { useSelector, useDispatch } from "react-redux";
-import { deleteUser, loadUsers } from "../redux/actions";
-import { history } from "../index";
+import { initialize, reset } from "redux-form";
+import { deleteUser, loadUsers, updateUser } from "../redux/actions";
+import ReactModal from "react-modal";
 import EditUser from "./EditUser";
+import EditForm from "./EditUserForm";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -115,6 +117,22 @@ const Home = () => {
   const { users } = useSelector((state) => state.users);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [state, setState] = useState({
+    name: "",
+    email: "",
+    address: "",
+    phoneNumber: "",
+    jobTitle: "",
+  });
+
+  const [open, setOpen] = React.useState(false);
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - users.length) : 0;
@@ -134,17 +152,20 @@ const Home = () => {
 
   const { user } = useSelector((state) => state.users);
 
+  const [error, setError] = useState("");
+
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       dispatch(deleteUser(id));
     }
   };
 
-  const [open, setOpen] = React.useState(false);
-
-  const handleEdit = () => {
-    setOpen(true);
+  const handleSubmit = (e, id) => {
+    e.preventDefault();
+    dispatch(updateUser(state, id));
+    setError("");
   };
+
 
   return (
     <div>
@@ -161,8 +182,8 @@ const Home = () => {
               <StyledTableCell align="center">ID</StyledTableCell>
               <StyledTableCell align="center">Name</StyledTableCell>
               <StyledTableCell align="center">Email</StyledTableCell>
-              <StyledTableCell align="center">Phone Number</StyledTableCell>
               <StyledTableCell align="center">Address</StyledTableCell>
+              <StyledTableCell align="center">Phone Number</StyledTableCell>
               <StyledTableCell align="center">Job Title</StyledTableCell>
               <StyledTableCell align="center">Edit</StyledTableCell>
               <StyledTableCell align="center">View</StyledTableCell>
@@ -194,11 +215,34 @@ const Home = () => {
                   <Button
                     color="primary"
                     variant="contained"
-                    onClick={() => handleEdit(user.id)}
+                    onClick={handleClickOpen}
+                    className="btn btn-primary"
                   >
                     EDIT
                   </Button>
                 </StyledTableCell>
+                <Dialog PaperProps={{ sx: { width: "30%", height: "100%" } }} open={open} onClose={handleClose}>
+                  <DialogContent>
+                  <EditUser />
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    type="submit"
+                    onClick={handleSubmit}
+                  >
+                    Update
+                  </Button>
+                  <Button
+                    width="100px"
+                    color="secondary"
+                    variant="contained"
+                    type="submit"
+                    onClick={handleClose}
+                  >
+                    Close
+                  </Button>
+                  </DialogContent>
+                </Dialog>
                 <StyledTableCell align="center">
                   <Button
                     color="secondary"
@@ -211,10 +255,12 @@ const Home = () => {
               </StyledTableRow>
             ))}
           </TableBody>
-          <TableFooter style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}>
+          <TableFooter
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
             <TableRow>
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}

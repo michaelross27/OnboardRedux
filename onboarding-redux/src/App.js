@@ -13,28 +13,11 @@ import { addUser } from "./redux/actions"
 function App() {
   const dispatch = useDispatch();
   const [openForm, setOpenForm] = useState(false);
-    const [isEditing, setIsEditing] = useState(false);
-    const form = {
-      open: () => setOpenForm(true),
-      close: () => {
-          dispatch(reset("contactForm")); // reset the redux form state of contactForm
-          setOpenForm(false);
-      },
-  };
-
-/*   const onSubmit = (formValues) => {
-    form.close();
-    if (isEditing) {
-        updateContactDetails(formValues);
-    } else {
-        addUser(formValues);
-    }
-  }; */
 
   return (
     <div className="App">
          <Home />
-         <AddUser/*  onSubmit={onSubmit} *//>
+         <AddUser/>
     </div>
   );
 }

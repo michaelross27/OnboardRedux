@@ -22,6 +22,7 @@ import CallIcon from "@mui/icons-material/Call";
 import WorkIcon from "@mui/icons-material/Work";
 import PropTypes from "prop-types";
 import { addUser } from "../redux/actions";
+import { formStyles } from "./formStyle";
 
 const FloatingActionButtonContainer = styled.div`
   position: fixed;
@@ -53,6 +54,8 @@ const AddUser = (props) => {
     setOpen(false);
   };
 
+  const classes = formStyles();
+
   const { name, email, address, phoneNumber, jobTitle } = state;
 
   const handleInputChange = (e) => {
@@ -75,7 +78,6 @@ const AddUser = (props) => {
       </FloatingActionButtonContainer>
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Add New Customer</DialogTitle>
-        {error && <h3 style={{ color: "red" }}>{error}</h3>}
         <Divider />
         <form onSubmit={handleSubmit} autoComplete="off">
           <DialogContent>
@@ -134,6 +136,8 @@ const AddUser = (props) => {
           </DialogContent>
           <Divider />
           <DialogActions>
+          <div className={classes.actions}>
+                        {" "}
             <Button
               style={{ width: "100px" }}
               color="primary"
@@ -152,6 +156,7 @@ const AddUser = (props) => {
             >
               Close
             </Button>
+            </div>
           </DialogActions>
         </form>
       </Dialog>

@@ -1,6 +1,7 @@
 import * as types from "./actionType";
 import axios from "axios";
 import { contactApi } from "./contactApi";
+import { formValues } from "redux-form";
 
 const url =
   "http://malih-auth.ap-southeast-2.elasticbeanstalk.com/api/v1/getAllUploadedEmails/listId/480";
@@ -20,6 +21,7 @@ const userAdded = () => ({
 
 const userUpdated = () => ({
   type: types.UPDATE_USER,
+  payload: formValues,
 });
 
 const getUser = (user) => ({
@@ -29,7 +31,7 @@ const getUser = (user) => ({
 
 export const loadUsers = () => async (dispatch) => {
   try {
-    const response = await axios.get(`${process.env.REACT_APP_API}`);
+    const response = await contactApi();
     console.log("resp", response);
     dispatch(getUsers(response.data));
   } catch (error) {
@@ -71,11 +73,11 @@ export const getSingleUser = (id) => async (dispatch) => {
   }
 };
 
-export const updateUser = (user, id) => async (dispatch) => {
+export const updateUser = (formValues, id) => async (dispatch) => {
   try {
     const response = await axios.put(
       `${process.env.REACT_APP_API}/${id}`,
-      user
+      formValues
     );
     console.log("resp", response);
     dispatch(userUpdated());
