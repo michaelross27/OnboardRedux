@@ -40,18 +40,18 @@ const EditUser = (props) => {
 
   const classes = formStyles();
 
-/*   const { users } = useSelector((state) => state.data);
+  /*   const { users } = useSelector((state) => state.data);
   const { user } = useSelector((state) => state.data); */
 
   const handleClickOpen = () => {
     setOpen(true);
   };
 
-/*   useEffect(() => {
+  /*   useEffect(() => {
     dispatch(getSingleUser(id));
   }, []); */
 
-/*   useEffect(() => {
+  /*   useEffect(() => {
     if (user) {
       setState({ ...user });
     }
@@ -93,7 +93,7 @@ const EditUser = (props) => {
 
   return (
     <div>
-        <h2>Update Customer</h2>
+      <h2>Update Customer</h2>
       <form onSubmit={handleSubmit} onClose={handleClose} autoComplete="off">
         <Field
           id="standard-basic"
@@ -152,7 +152,6 @@ const EditUser = (props) => {
           onChange={handleInputChange}
         />
         <br />
-        
       </form>
     </div>
   );

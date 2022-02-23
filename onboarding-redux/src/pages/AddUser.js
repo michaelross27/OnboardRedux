@@ -136,26 +136,26 @@ const AddUser = (props) => {
           </DialogContent>
           <Divider />
           <DialogActions>
-          <div className={classes.actions}>
-                        {" "}
-            <Button
-              style={{ width: "100px" }}
-              color="primary"
-              variant="contained"
-              type="submit"
-              onChange={handleInputChange}
-              onClick={handleClose}
-            >
-              Add
-            </Button>
-            <Button
-              color="secondary"
-              variant="contained"
-              type="submit"
-              onClick={handleClose}
-            >
-              Close
-            </Button>
+            <div className={classes.actions}>
+              {" "}
+              <Button
+                style={{ width: "100px" }}
+                color="primary"
+                variant="contained"
+                type="submit"
+                onChange={handleInputChange}
+                onClick={handleClose}
+              >
+                Add
+              </Button>
+              <Button
+                color="secondary"
+                variant="contained"
+                type="submit"
+                onClick={handleClose}
+              >
+                Close
+              </Button>
             </div>
           </DialogActions>
         </form>
@@ -187,12 +187,11 @@ function validate(values) {
 }
 
 AddUser.propTypes = {
-    open: PropTypes.bool.isRequired,
-    title: PropTypes.string.isRequired,
-    onClose: PropTypes.func.isRequired,
-    onSubmit: PropTypes.func.isRequired,
+  open: PropTypes.bool.isRequired,
+  title: PropTypes.string.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };
-
 
 export default reduxForm({
   validate,

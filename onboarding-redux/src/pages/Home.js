@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { useTheme, styled } from "@mui/material/styles";
 import Box from "@mui/material/Box";
-import { Button, Dialog, DialogContent } from "@mui/material";
+import { Button, Fab, Tooltip, Dialog, DialogContent } from "@mui/material";
+import { Add, Logout } from "@mui/icons-material";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell, { tableCellClasses } from "@mui/material/TableCell";
@@ -19,10 +20,14 @@ import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import { useSelector, useDispatch } from "react-redux";
 import { initialize, reset } from "redux-form";
-import { deleteUser, loadUsers, updateUser } from "../redux/actions";
-import ReactModal from "react-modal";
-import EditUser from "./EditUser";
-import EditForm from "./EditUserForm";
+import { useNavigate, Navigate } from "react-router-dom";
+import {
+  Container,
+  FloatingActionButtonContainer,
+  FloatingButtonSpacer,
+} from "../features/styled-components";
+import { useActions } from "../redux/useActions";
+import UserForm from "./UserForm";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -113,25 +118,63 @@ TablePaginationActions.propTypes = {
 };
 
 const Home = () => {
-  let dispatch = useDispatch();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { users } = useSelector((state) => state.users);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-  const [state, setState] = useState({
-    name: "",
-    email: "",
-    address: "",
-    phoneNumber: "",
-    jobTitle: "",
-  });
-
+  const [isEditing, setIsEditing] = useState(false);
+  const { isSignedIn } = useSelector((state) => state.auth);
   const [open, setOpen] = React.useState(false);
-  const handleClickOpen = () => {
-    setOpen(true);
+
+  const {
+    deleteUser,
+  loadUsers,
+  updateUser,
+  addUser,
+  setUserDetails,
+  cleanUserDetails,
+  cleanUser,
+  login,
+  logout,
+  } = useActions();
+
+  const form = {
+    open: () => setOpen(true),
+    close: () => {
+      dispatch(reset("userForm"));
+      setOpen(false);
+    },
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const actions = {
+    submit: (formValues) => {
+      form.close();
+      if (isEditing) {
+        updateUser(formValues);
+      } else {
+        addUser(formValues);
+      }
+    },
+    create: () => {
+      setIsEditing(false);
+      dispatch(initialize("userForm", {}));
+      form.open();
+    },
+    edit: (user) => {
+      setIsEditing(true);
+      dispatch(initialize("userForm", user));
+      form.open();
+    },
+    view: {
+      open: (user) => {
+        setUserDetails(user);
+      },
+      close: () => cleanUserDetails(),
+    },
+    delete: (userIds) => {
+      deleteUser(userIds);
+    },
   };
 
   const emptyRows =
@@ -147,25 +190,28 @@ const Home = () => {
   };
 
   useEffect(() => {
-    dispatch(loadUsers());
-  }, []);
+    let mounted = true;
+    if (mounted) {
+        loadUsers();
+    }
+    return () => {
+        mounted = false;
+        cleanUser();
+    };
+}, [loadUsers, cleanUser]);
+if (!isSignedIn) {
+    return <Navigate to="/" />;
+}
 
-  const { user } = useSelector((state) => state.users);
 
-  const [error, setError] = useState("");
 
-  const handleDelete = (id) => {
+  const handleDelete = (user) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
-      dispatch(deleteUser(id));
+      dispatch(deleteUser(user));
     }
   };
 
-  const handleSubmit = (e, id) => {
-    e.preventDefault();
-    dispatch(updateUser(state, id));
-    setError("");
-  };
-
+  const handleLogout = () => logout(navigate);
 
   return (
     <div>
@@ -215,41 +261,19 @@ const Home = () => {
                   <Button
                     color="primary"
                     variant="contained"
-                    onClick={handleClickOpen}
+                    onClick={() => actions.edit(user)}
                     className="btn btn-primary"
                   >
                     EDIT
                   </Button>
                 </StyledTableCell>
-                <Dialog PaperProps={{ sx: { width: "30%", height: "100%" } }} open={open} onClose={handleClose}>
-                  <DialogContent>
-                  <EditUser />
-                  <Button
-                    color="primary"
-                    variant="contained"
-                    type="submit"
-                    onClick={handleSubmit}
-                  >
-                    Update
-                  </Button>
-                  <Button
-                    width="100px"
-                    color="secondary"
-                    variant="contained"
-                    type="submit"
-                    onClick={handleClose}
-                  >
-                    Close
-                  </Button>
-                  </DialogContent>
-                </Dialog>
                 <StyledTableCell align="center">
                   <Button
                     color="secondary"
                     variant="contained"
-                    onClick={() => handleDelete(user.id)}
+                    onClick={() => actions.view.open(user)}
                   >
-                    DELETE
+                    VIEW
                   </Button>
                 </StyledTableCell>
               </StyledTableRow>
@@ -282,6 +306,30 @@ const Home = () => {
           </TableFooter>
         </Table>
       </TableContainer>
+      <FloatingActionButtonContainer>
+        <FloatingButtonSpacer>
+          <Tooltip title="Add new contact">
+            <Fab color="primary" onClick={actions.create}>
+              <Add />
+            </Fab>
+          </Tooltip>
+        </FloatingButtonSpacer>
+        <FloatingButtonSpacer>
+          <Tooltip title="Logout">
+            <Fab color="secondary" onClick={handleLogout}>
+              <Logout />
+            </Fab>
+          </Tooltip>
+        </FloatingButtonSpacer>
+      </FloatingActionButtonContainer>
+      <UserForm open={open} onClose={form.close} onSubmit={actions.submit} />
+      {/* {contactDetails !== null && (
+                <ContactPreview
+                    open={contactDetails !== null}
+                    onClose={actions.view.close}
+                    contacts={contactDetails}
+                />
+            )} */}
     </div>
   );
 };

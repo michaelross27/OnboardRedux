@@ -1,14 +1,13 @@
 import * as types from "./actionType";
 import axios from "axios";
 import { contactApi } from "./contactApi";
-import { formValues } from "redux-form";
-
-const url =
-  "http://malih-auth.ap-southeast-2.elasticbeanstalk.com/api/v1/getAllUploadedEmails/listId/480";
+import { formValues, reset } from "redux-form";
+import { accessManagement as iam } from "../utils/accessManagement";
 
 const getUsers = (users) => ({
   type: types.GET_USERS,
   payload: users,
+  message: "SUCCESS: Users have been fetched",
 });
 
 const userDeleted = () => ({
@@ -31,8 +30,10 @@ const getUser = (user) => ({
 
 export const loadUsers = () => async (dispatch) => {
   try {
-    const response = await contactApi();
-    console.log("resp", response);
+    const response = await contactApi.get("/getAllUploadedEmails/listId/480");
+    const contacts = response.data;
+        contacts.reverse();
+
     dispatch(getUsers(response.data));
   } catch (error) {
     console.log(error);
@@ -41,8 +42,7 @@ export const loadUsers = () => async (dispatch) => {
 
 export const deleteUser = (id) => async (dispatch) => {
   try {
-    const response = await axios.delete(`${process.env.REACT_APP_API}/${id}`);
-    console.log("resp", response);
+    await contactApi.delete("/deleteEmails", id); 
     dispatch(userDeleted());
     dispatch(loadUsers());
   } catch (error) {
@@ -50,38 +50,102 @@ export const deleteUser = (id) => async (dispatch) => {
   }
 };
 
-export const addUser = (user) => {
-  return function (dispatch) {
-    axios
-      .post(`${process.env.REACT_APP_API}`, user)
-      .then((resp) => {
-        console.log("resp", resp);
-        dispatch(userAdded());
+export const addUser = (formValues) => async (dispatch) => {
+  dispatch(reset("addUser"));
+  try {
+    await contactApi.post("/emailUpload", [
+        {
+            ...formValues,
+            listId: 480,
+        },
+    ]);
+    await contactApi.get("/getAllUploadedEmails/listId/480");
+    dispatch(userAdded());
         dispatch(loadUsers());
-      })
-      .catch((error) => console.log(error));
-  };
+    } catch (error) {
+      console.log(error);
+    }
 };
 
-export const getSingleUser = (id) => async (dispatch) => {
+export const updateUser = (formValues) => async (dispatch) => {
   try {
-    const response = await axios.get(`${process.env.REACT_APP_API}/${id}`);
-    console.log("resp", response);
-    dispatch(getUser(response.data));
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-export const updateUser = (formValues, id) => async (dispatch) => {
-  try {
-    const response = await axios.put(
-      `${process.env.REACT_APP_API}/${id}`,
+    await contactApi.put(
+      "/updateEmail",
       formValues
     );
-    console.log("resp", response);
     dispatch(userUpdated());
   } catch (error) {
     console.log(error);
   }
 };
+
+export const login =
+    ({ formValues, navigate }) =>
+    async (dispatch) => {
+        try {
+            const res = await contactApi.post("/auth/signin", formValues);
+            const { tokenType, accessToken, id } = res.data;
+            iam.tokenType.set(tokenType);
+            iam.token.set(accessToken); 
+            iam.userId.set(id); 
+
+            const userRes = await contactApi.get(`/getUserState/id/${id}`);
+            const userDetails = userRes.data.data;
+            const { tenantReference } = userDetails;
+
+            iam.tenantReference.set(tenantReference); 
+            dispatch(reset("loginForm"));
+            dispatch({
+                type: types.LOGIN,
+                payload: { data: userDetails, message: "Successfully Login" },
+            });
+            navigate("/contacts");
+        } catch (err) {
+            dispatch({
+                type: types.ALERT_ERROR_AUTH,
+                payload: "ERROR: Unable to Login",
+            });
+        }
+    };
+
+export const getCurrentUser = (navigate) => async (dispatch, getState) => {
+    const isAutoLogin = getState().auth.isSignedIn;
+
+    if (isAutoLogin) {
+        try {
+            const res = await contactApi.get(
+                `/getUserState/id/${iam.userId.get()}`
+            );
+            const userDetails = res.data.data;
+            dispatch({
+                type: types.LOGIN,
+                payload: { data: userDetails, message: "Successfully Login" },
+            });
+
+            navigate("/home");
+            return;
+        } catch (err) {
+            dispatch({
+                type: types.ALERT_ERROR_AUTH,
+                payload: "ERROR: Unable to Login",
+            });
+        }
+    }
+    navigate("/");
+};
+
+export const logout = (navigate) => (dispatch) => {
+    iam.removeAll();
+    dispatch({ type: types.LOGOUT });
+    navigate("/");
+};
+
+export const setUserDetails = (user) => (dispatch) =>
+    dispatch({ type: types.SET_USER_DETAILS, payload: user });
+
+export const cleanUserDetails = () => (dispatch) =>
+    dispatch({ type: types.CLEAN_USER_DETAILS });
+
+export const cleanUser = () => (dispatch) =>
+    dispatch({ type: types.CLEAN_USER });
+
