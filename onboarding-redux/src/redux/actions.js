@@ -1,5 +1,4 @@
 import * as types from "./actionType";
-import axios from "axios";
 import { contactApi } from "./contactApi";
 import { formValues, reset } from "redux-form";
 import { accessManagement as iam } from "../utils/accessManagement";
@@ -10,8 +9,13 @@ const getUsers = (users) => ({
   message: "SUCCESS: Users have been fetched",
 });
 
-const userDeleted = () => ({
+const userDeleted = (userIds) => ({
   type: types.DELETE_USER,
+  payload: {
+    data: userIds,
+    message: `SUCCESS: Successfully deleted ${userIds.length} contacts`,
+},
+
 });
 
 const userAdded = () => ({
@@ -40,10 +44,12 @@ export const loadUsers = () => async (dispatch) => {
   }
 };
 
-export const deleteUser = (id) => async (dispatch) => {
+export const deleteUser = (userIds) => async (dispatch) => {
   try {
-    await contactApi.delete("/deleteEmails", id); 
-    dispatch(userDeleted());
+    await contactApi.delete("/deleteEmails", {
+      data: userIds,
+    }); 
+    dispatch(userDeleted(userIds));
     dispatch(loadUsers());
   } catch (error) {
     console.log(error);
@@ -74,6 +80,7 @@ export const updateUser = (formValues) => async (dispatch) => {
       formValues
     );
     dispatch(userUpdated());
+    dispatch(loadUsers());
   } catch (error) {
     console.log(error);
   }

@@ -6,6 +6,7 @@ import {
   DialogContent,
   Button,
   Divider,
+  Grid,
 } from "@mui/material";
 import EmailIcon from "@mui/icons-material/Email";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
@@ -18,7 +19,6 @@ import CustomTextField from "../features/CustomTextField";
 import { formStyles } from "./formStyle";
 
 const UserForm = (props) => {
-
   const { open, onClose } = props;
   const classes = formStyles();
   const onSubmit = (formValues) => props.onSubmit(formValues);
@@ -29,43 +29,55 @@ const UserForm = (props) => {
       <Divider />
       <form onSubmit={onSubmit} autoComplete="off">
         <DialogContent>
-          <Field
-            label="Name"
-            name="name"
-            type="text"
-            required
-            component={CustomTextField}
-            icon={<PersonOutlineIcon />}
-          />
-          <Field
-            label="Email"
-            name="email"
-            type="email"
-            required
-            component={CustomTextField}
-            icon={<EmailIcon />}
-          />
-          <Field
-            label="Address"
-            name="address"
-            type="text"
-            component={CustomTextField}
-            icon={<HomeIcon />}
-          />
-          <Field
-            label="Phone Number"
-            name="phoneNumber"
-            type="tel"
-            component={CustomTextField}
-            icon={<CallIcon />}
-          />
-          <Field
-            label="Job Title"
-            name="jobTitle"
-            type="text"
-            component={CustomTextField}
-            icon={<WorkIcon />}
-          />
+          <Grid spacing={2} container>
+            <Grid item xs={6}>
+              <Field
+                label="Name"
+                name="name"
+                type="text"
+                required
+                component={CustomTextField}
+                icon={<PersonOutlineIcon />}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Field
+                label="Email"
+                name="email"
+                type="email"
+                required
+                component={CustomTextField}
+                icon={<EmailIcon />}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Field
+                label="Address"
+                name="address"
+                type="text"
+                component={CustomTextField}
+                icon={<HomeIcon />}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Field
+                label="Phone Number"
+                name="phoneNumber"
+                type="tel"
+                component={CustomTextField}
+                icon={<CallIcon />}
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <Field
+                label="Job Title"
+                name="jobTitle"
+                type="text"
+                component={CustomTextField}
+                icon={<WorkIcon />}
+              />
+            </Grid>
+          </Grid>
         </DialogContent>
         <Divider />
         <DialogActions>
@@ -96,11 +108,10 @@ const UserForm = (props) => {
 };
 
 UserForm.propTypes = {
-    open: PropTypes.bool.isRequired,
-    onClose: PropTypes.func.isRequired,
-    onSubmit: PropTypes.func.isRequired,
-  };
-
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+};
 
 function validate(values) {
   const errors = {};
@@ -123,7 +134,6 @@ function validate(values) {
 
   return errors;
 }
-
 
 export default reduxForm({
   validate,
